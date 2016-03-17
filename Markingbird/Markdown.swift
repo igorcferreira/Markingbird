@@ -116,10 +116,13 @@ software, even if advised of the possibility of such damage.
 import Foundation
 
 
-//Easy cast
+
 extension String {
     func bridge() -> NSString {
         return NSString(string: self)
+    }
+    func stringByReplacingOccurrencesOfString(original:String, withString replace:String) -> String {
+        return self.bridge().stringByReplacingOccurrencesOfString(original, withString:replace).bridge()
     }
 }
 
