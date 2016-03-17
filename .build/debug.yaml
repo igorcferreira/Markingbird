@@ -1,0 +1,20 @@
+client:
+  name: swift-build
+tools: {}
+targets:
+  default: [<Markingbird.module>]
+  test: []
+commands: 
+  <Markingbird.module>:
+    tool: swift-compiler
+    executable: /Library/Developer/Toolchains/swift-DEVELOPMENT-SNAPSHOT-2016-03-01-a.xctoolchain/usr/bin/swiftc
+    module-name: Markingbird
+    module-output-path: /Users/igorferreira/Documents/git/Markingbird/.build/debug/Markingbird.swiftmodule
+    inputs: []
+    outputs: [<Markingbird.module>, /Users/igorferreira/Documents/git/Markingbird/.build/debug/Markingbird.build/Markdown.swift.o]
+    import-paths: /Users/igorferreira/Documents/git/Markingbird/.build/debug
+    temps-path: /Users/igorferreira/Documents/git/Markingbird/.build/debug/Markingbird.build
+    objects: [/Users/igorferreira/Documents/git/Markingbird/.build/debug/Markingbird.build/Markdown.swift.o]
+    other-args: ["-j8", "-Onone", "-g", "-D", SWIFT_PACKAGE, "-enable-testing", "-F", /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks, "-target", "x86_64-apple-macosx10.10", "-sdk", /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk]
+    sources: [/Users/igorferreira/Documents/git/Markingbird/Markingbird/Markdown.swift]
+    is-library: true
