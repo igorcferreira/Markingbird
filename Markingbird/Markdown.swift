@@ -116,8 +116,21 @@ software, even if advised of the possibility of such damage.
 #if os(Linux)
     import Glibc
     import SwiftShims
+    
+    extension String {
+        func stringByReplacingOccurrencesOfString(original:String, withString replace:String) -> String {
+            return self.bridge().stringByReplacingOccurrencesOfString(original, withString:replace)
+        }
+    }
+    
 #else
     import Darwin
+    
+    extension NSString {
+        func bridge() -> String {
+            return self as String
+        }
+    }
 #endif
 
 import Foundation
@@ -126,9 +139,6 @@ import Foundation
 extension String {
     func bridge() -> NSString {
         return NSString(string: self)
-    }
-    func stringByReplacingOccurrencesOfString(original:String, withString replace:String) -> String {
-        return self.bridge().stringByReplacingOccurrencesOfString(original, withString:replace)
     }
     
     func substringWithRange(range:NSRange) -> String {
@@ -1513,6 +1523,14 @@ public struct Markdown {
         return Markdown._outDent.replace(block, "")
     }
     
+    func random(baseline:UInt32) -> UInt32 {
+        #if os(Linux)
+            return _swift_stdlib_arc4random_uniform(baseline)
+        #else
+            return arc4random_uniform(baseline)
+        #endif
+    }
+    
     /// encodes email address randomly
     /// roughly 10% raw, 45% hex, 45% dec
     /// note that @ is always encoded and : never is
@@ -1521,7 +1539,7 @@ public struct Markdown {
         let colon: UInt8 = 58 // ':'
         let at: UInt8 = 64    // '@'
         for c in addr.utf8 {
-            let r = _swift_stdlib_arc4random_uniform(99) + 1
+            let r = random(99) + 1
             // TODO: verify that the following stuff works as expected in Swift
             if (r > 90 || c == colon) && c != at {
                 sb += String(count: 1, repeatedValue: UnicodeScalar(UInt32(c))) // m
