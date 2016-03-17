@@ -113,8 +113,14 @@ software, even if advised of the possibility of such damage.
 */
 
 
-import Foundation
+#if os(Linux)
+    import Glibc
+    import SwiftShims
+#else
+    import Darwin
+#endif
 
+import Foundation
 
 
 extension String {
@@ -1185,15 +1191,15 @@ public struct Markdown {
 
             if containsDoubleNewline || lastItemHadADoubleNewline {
                 // we could correct any bad indentation here..
-                item = self.runBlockGamut(self.outdent(item.bridge()) + "\n", unhash: false)
+                item = self.runBlockGamut(self.outdent(item) + "\n", unhash: false)
             }
             else {
                 // recursion for sub-lists
-                item = self.doLists(self.outdent(item.bridge()), isInsideParagraphlessListItem: true)
+                item = self.doLists(self.outdent(item), isInsideParagraphlessListItem: true)
                 item = Markdown.trimEnd(item, "\n")
                 if (!isInsideParagraphlessListItem) {
                     // only the outer-most item should run this, otherwise it's run multiple times for the inner ones
-                    item = self.runSpanGamut(item.bridge())
+                    item = self.runSpanGamut(item)
                 }
             }
             lastItemHadADoubleNewline = endsWithDoubleNewline
@@ -1506,7 +1512,7 @@ public struct Markdown {
     private func outdent(block: String) -> String {
         return Markdown._outDent.replace(block, "")
     }
-
+    
     /// encodes email address randomly
     /// roughly 10% raw, 45% hex, 45% dec
     /// note that @ is always encoded and : never is
@@ -1515,12 +1521,12 @@ public struct Markdown {
         let colon: UInt8 = 58 // ':'
         let at: UInt8 = 64    // '@'
         for c in addr.utf8 {
-            let r = arc4random_uniform(99) + 1
+            let r = _swift_stdlib_arc4random_uniform(99) + 1
             // TODO: verify that the following stuff works as expected in Swift
             if (r > 90 || c == colon) && c != at {
                 sb += String(count: 1, repeatedValue: UnicodeScalar(UInt32(c))) // m
             } else if r < 45 {
-                sb += NSString(format:"&#x%02x;", UInt(c)).bridge()                      // &#x6D
+                //sb += NSString(format:"&#x%02x;", UInt(c)).bridge()                      // &#x6D
             } else {
                 sb += "&#\(c);"                                                 // &#109
             }
@@ -1620,7 +1626,7 @@ public struct Markdown {
 
             if (encode) {
                 sb += "%"
-                sb += NSString(format:"%2x", UInt(c)).bridge()
+                //sb += NSString(format:"%2x", UInt(c)).bridge()
             }
             else {
                 sb += String(count: 1, repeatedValue: UnicodeScalar(c))
@@ -1752,7 +1758,7 @@ public struct Markdown {
     /// Convert UnicodeScalar to a 16-bit unichar value
     private static func unicharForUnicodeScalar(unicodeScalar: UnicodeScalar) -> unichar {
         let u32 = UInt32(unicodeScalar)
-        if u32 <= UInt32(UINT16_MAX) {
+        if u32 <= UInt32((2^16 - 1)) {
             return unichar(u32)
         }
         else {
