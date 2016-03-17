@@ -1419,10 +1419,10 @@ public struct Markdown {
                 level--
             }
         }
-        var tail = ""
+        var tail:String = ""
         if level < 0 {
             link = Regex.replace(link, pattern: "\\){1,\(-level)}$", evaluator: { m in
-                tail = m.value
+                tail = m.value.bridge()
                 return ""
             })
         }
