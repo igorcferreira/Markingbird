@@ -115,6 +115,8 @@ software, even if advised of the possibility of such damage.
 
 import Foundation
 
+
+//Easy cast
 extension String {
     func bridge() -> NSString {
         return NSString(string: self)
