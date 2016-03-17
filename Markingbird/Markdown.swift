@@ -871,12 +871,12 @@ public struct Markdown {
         url = encodeProblemUrlChars(url)
         url = escapeBoldItalic(url)
         if url.hasPrefix("<") && url.hasSuffix(">") {
-            url = url.substringWithRange(NSMakeRange(1, url.length - 2)) // remove <>'s surrounding URL, if present
+            url = url.substringWithRange(NSMakeRange(1, url.characters.count - 2)) // remove <>'s surrounding URL, if present
         }
 
         result = "<a href=\"\(url)\""
 
-        if title.length != 0 {
+        if title.characters.count != 0 {
             title = Markdown.attributeEncode(title)
             title = escapeBoldItalic(title)
             result += " title=\"\(title)\""
@@ -973,14 +973,14 @@ public struct Markdown {
     }
 
     private func imageInlineEvaluator(match: Match) -> String {
-        let alt = match.valueOfGroupAtIndex(2)
-        var url = match.valueOfGroupAtIndex(3)
-        let title = match.valueOfGroupAtIndex(6)
+        let alt = match.valueOfGroupAtIndex(2).bridge()
+        var url = match.valueOfGroupAtIndex(3).bridge()
+        let title = match.valueOfGroupAtIndex(6).bridge()
 
         if url.hasPrefix("<") && url.hasSuffix(">") {
-            url = url.substringWithRange(NSMakeRange(1, url.length - 2))    // Remove <>'s surrounding URL, if present
+            url = url.substringWithRange(NSMakeRange(1, url.characters.count - 2))    // Remove <>'s surrounding URL, if present
         }
-        return imageTag(url.bridge(), altText: alt.bridge(), title: title.bridge())
+        return imageTag(url, altText: alt, title: title)
     }
 
     private func imageTag(var url: String, var altText: String, title: String?) -> String {
@@ -1608,7 +1608,7 @@ public struct Markdown {
         var sb = ""
         var encode = false
 
-        let str = url.bridge()
+        let str = url
         for i in 0..<str.length {
             let c = str.characterAtIndex(i)
             encode = Markdown._problemUrlChars.characterIsMember(c)
