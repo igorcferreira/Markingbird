@@ -122,7 +122,7 @@ extension String {
         return NSString(string: self)
     }
     func stringByReplacingOccurrencesOfString(original:String, withString replace:String) -> String {
-        return self.bridge().stringByReplacingOccurrencesOfString(original, withString:replace).bridge()
+        return self.bridge().stringByReplacingOccurrencesOfString(original, withString:replace)
     }
     
     func substringWithRange(range:NSRange) -> String {
