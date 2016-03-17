@@ -1178,7 +1178,7 @@ public struct Markdown {
 
         // has to be a closure, so subsequent invocations can share the bool
         let listItemEvaluator: MatchEvaluator = { match in
-            var item = match.valueOfGroupAtIndex(3)
+            var item = match.valueOfGroupAtIndex(3).bridge()
 
             let endsWithDoubleNewline = item.hasSuffix("\n\n")
             let containsDoubleNewline = endsWithDoubleNewline || Markdown.doesString(item, containSubstring: "\n\n")
@@ -1228,10 +1228,10 @@ public struct Markdown {
     }
 
     private func codeBlockEvaluator(match: Match) -> String {
-        var codeBlock = match.valueOfGroupAtIndex(1)
+        var codeBlock = match.valueOfGroupAtIndex(1).bridge()
 
-        codeBlock = encodeCode(outdent(codeBlock.bridge()))
-        codeBlock = Markdown._newlinesLeadingTrailing.replace(codeBlock.bridge(), "")
+        codeBlock = encodeCode(outdent(codeBlock))
+        codeBlock = Markdown._newlinesLeadingTrailing.replace(codeBlock, "")
 
         return "\n\n<pre><code>\(codeBlock)\n</code></pre>\n\n"
     }
@@ -1275,11 +1275,11 @@ public struct Markdown {
     }
 
     private func codeSpanEvaluator(match: Match) -> String {
-        var span = match.valueOfGroupAtIndex(2)
-        span = Regex.replace(span.bridge(), pattern: "^\\p{Z}*", replacement: "") // leading whitespace
-        span = Regex.replace(span.bridge(), pattern: "\\p{Z}*$", replacement: "") // trailing whitespace
-        span = encodeCode(span.bridge())
-        span = saveFromAutoLinking(span.bridge()) // to prevent auto-linking. Not necessary in code *blocks*, but in code spans.
+        var span = match.valueOfGroupAtIndex(2).bridge()
+        span = Regex.replace(span, pattern: "^\\p{Z}*", replacement: "") // leading whitespace
+        span = Regex.replace(span, pattern: "\\p{Z}*$", replacement: "") // trailing whitespace
+        span = encodeCode(span)
+        span = saveFromAutoLinking(span) // to prevent auto-linking. Not necessary in code *blocks*, but in code spans.
 
         return "<code>\(span)</code>"
     }
@@ -1395,12 +1395,12 @@ public struct Markdown {
         }
 
         let proto = match.valueOfGroupAtIndex(2)
-        var link: NSString = match.valueOfGroupAtIndex(3)
+        var link = match.valueOfGroupAtIndex(3).bridge()
         if !link.hasSuffix(")") {
             return "<\(proto)\(link)>"
         }
         var level = 0
-        for c in Regex.matches(link.bridge(), pattern: "[()]") {
+        for c in Regex.matches(link, pattern: "[()]") {
             if c.value == "(" {
                 if (level <= 0) {
                     level = 1
@@ -1413,18 +1413,18 @@ public struct Markdown {
                 level--
             }
         }
-        var tail: NSString = ""
+        var tail = ""
         if level < 0 {
-            link = Regex.replace(link.bridge(), pattern: "\\){1,\(-level)}$", evaluator: { m in
+            link = Regex.replace(link, pattern: "\\){1,\(-level)}$", evaluator: { m in
                 tail = m.value
                 return ""
             })
         }
-        if tail.length > 0 {
-            let lastChar = link.substringFromIndex(link.length - 1)
+        if tail.characters.count > 0 {
+            let lastChar = link.substringFromIndex(link.characters.count - 1)
             if !_endCharRegex.isMatch(lastChar) {
                 tail = "\(lastChar)\(tail)"
-                link = link.substringToIndex(link.length - 1)
+                link = link.substringToIndex(link.characters.count - 1)
             }
         }
         return "<\(proto)\(link)>\(tail)"
@@ -1593,9 +1593,9 @@ public struct Markdown {
     private func escapeBoldItalic(s: String) -> String {
         var str = s.bridge()
         str = str.stringByReplacingOccurrencesOfString("*",
-            withString: Markdown._escapeTable["*"]!)
+            withString: Markdown._escapeTable["*"]!).bridge()
         str = str.stringByReplacingOccurrencesOfString("_",
-            withString: Markdown._escapeTable["_"]!)
+            withString: Markdown._escapeTable["_"]!).bridge()
         return str.bridge()
     }
 
@@ -1608,7 +1608,7 @@ public struct Markdown {
         var sb = ""
         var encode = false
 
-        let str = url
+        let str = url.bridge()
         for i in 0..<str.length {
             let c = str.characterAtIndex(i)
             encode = Markdown._problemUrlChars.characterIsMember(c)
@@ -1854,7 +1854,7 @@ private struct MarkdownRegex {
         // Make the replacements from back to front
         var result = s
         for (range, replacementText) in Array(replacements.reverse()) {
-            result = result.stringByReplacingCharactersInRange(range, withString: replacementText)
+            result = result.stringByReplacingCharactersInRange(range, withString: replacementText).bridge()
         }
         return result.bridge()
     }
@@ -1924,7 +1924,7 @@ private struct MarkdownRegex {
                 let range = result!.range
                 if range.location > nextStartIndex {
                     let runRange = NSMakeRange(nextStartIndex, range.location - nextStartIndex)
-                    let run = s.substringWithRange(runRange).bridge()
+                    let run = s.substringWithRange(runRange)
                     stringArray.append(run)
                     nextStartIndex = range.location + range.length
                 }
@@ -1932,7 +1932,7 @@ private struct MarkdownRegex {
 
         if nextStartIndex < s.length {
             let lastRunRange = NSMakeRange(nextStartIndex, s.length - nextStartIndex)
-            let lastRun = s.substringWithRange(lastRunRange).bridge()
+            let lastRun = s.substringWithRange(lastRunRange)
             stringArray.append(lastRun)
         }
 
@@ -1955,7 +1955,7 @@ private struct MarkdownRegexMatch {
     }
 
     var value: NSString {
-        return string.substringWithRange(textCheckingResult.range)
+        return string.substringWithRange(textCheckingResult.range).bridge()
     }
 
     var index: Int {
