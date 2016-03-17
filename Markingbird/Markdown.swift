@@ -1421,10 +1421,10 @@ public struct Markdown {
             })
         }
         if tail.characters.count > 0 {
-            let lastChar = link.substringFromIndex(link.characters.count - 1)
+            let lastChar = link.bridge().substringFromIndex(link.characters.count - 1)
             if !_endCharRegex.isMatch(lastChar) {
                 tail = "\(lastChar)\(tail)"
-                link = link.substringToIndex(link.characters.count - 1)
+                link = link.bridge().substringToIndex(link.characters.count - 1)
             }
         }
         return "<\(proto)\(link)>\(tail)"
@@ -1726,7 +1726,7 @@ public struct Markdown {
 
     private static func trimEnd(var string: NSString, _ suffix: NSString) -> String {
         while string.hasSuffix(suffix.bridge()) {
-            string = string.substringToIndex(string.length - suffix.length)
+            string = string.substringToIndex(string.length - suffix.length).bridge()
         }
         return string.bridge()
     }
@@ -1973,7 +1973,7 @@ private struct MarkdownRegexMatch {
                 return ""
             }
             assert(groupRange.location + groupRange.length <= string.length, "range must be contained within string")
-            return string.substringWithRange(groupRange)
+            return string.substringWithRange(groupRange).bridge()
         }
         return ""
     }
