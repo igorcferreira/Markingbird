@@ -1187,7 +1187,7 @@ public struct Markdown {
             var item = match.valueOfGroupAtIndex(3).bridge()
 
             let endsWithDoubleNewline = item.hasSuffix("\n\n")
-            let containsDoubleNewline = endsWithDoubleNewline || Markdown.doesString(item, containSubstring: "\n\n")
+            let containsDoubleNewline = endsWithDoubleNewline || Markdown.doesString(item.bridge(), containSubstring: "\n\n")
 
             if containsDoubleNewline || lastItemHadADoubleNewline {
                 // we could correct any bad indentation here..
@@ -1196,7 +1196,7 @@ public struct Markdown {
             else {
                 // recursion for sub-lists
                 item = self.doLists(self.outdent(item), isInsideParagraphlessListItem: true)
-                item = Markdown.trimEnd(item, "\n")
+                item = Markdown.trimEnd(item.bridge(), "\n")
                 if (!isInsideParagraphlessListItem) {
                     // only the outer-most item should run this, otherwise it's run multiple times for the inner ones
                     item = self.runSpanGamut(item)
