@@ -122,7 +122,11 @@ extension String {
         return NSString(string: self)
     }
     func stringByReplacingOccurrencesOfString(original:String, withString replace:String) -> String {
-        return self.bridge().stringByReplacingOccurrencesOfString(original, withString:replace)
+        return self.bridge().stringByReplacingOccurrencesOfString(original, withString:replace).bridge()
+    }
+    
+    func substringWithRange(range:NSRange) -> String {
+        return self.substringWithRange(range)
     }
 }
 
@@ -859,13 +863,13 @@ public struct Markdown {
 
     private func anchorInlineEvaluator(match: Match) -> String {
         let linkText = saveFromAutoLinking(match.valueOfGroupAtIndex(2).bridge())
-        var url = match.valueOfGroupAtIndex(3)
-        var title = match.valueOfGroupAtIndex(6)
+        var url = match.valueOfGroupAtIndex(3).bridge()
+        var title = match.valueOfGroupAtIndex(6).bridge()
 
         var result: String
 
-        url = encodeProblemUrlChars(url.bridge())
-        url = escapeBoldItalic(url.bridge())
+        url = encodeProblemUrlChars(url)
+        url = escapeBoldItalic(url)
         if url.hasPrefix("<") && url.hasSuffix(">") {
             url = url.substringWithRange(NSMakeRange(1, url.length - 2)) // remove <>'s surrounding URL, if present
         }
@@ -873,8 +877,8 @@ public struct Markdown {
         result = "<a href=\"\(url)\""
 
         if title.length != 0 {
-            title = Markdown.attributeEncode(title.bridge())
-            title = escapeBoldItalic(title.bridge())
+            title = Markdown.attributeEncode(title)
+            title = escapeBoldItalic(title)
             result += " title=\"\(title)\""
         }
 
