@@ -10,3 +10,5 @@ install:
 script:
 - . ~/.swiftenv/init
 - swift build
+notifications:
+  email: false
